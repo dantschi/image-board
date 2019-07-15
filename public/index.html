@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+    <title>Vue image box</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>Image Board</h1>
+            <div id="form-container">
+                <form>
+                    <div class="form-inputs">
+                        <div class="input-texts">
+
+                            <div class="inputs">
+
+                            </div>
+                            <input v-model='form.title' type="text" name="title" placeholder="Image title" autocomplete="off" required>
+                            <input v-model='form.description' type="text" name="description" placeholder="Image description" autocomplete="off">
+                            <input v-model='form.username' type="text" name="username" placeholder="Enter user name" autocomplete="off" required>
+                            <input v-model='form.tags' type="text" name="tags" placeholder="Image tags">
+
+
+                            <input id="file" class="inputfile" type="file" name="file" accept="image/*" @change='handleFileChange' />
+                            <label for="file">Choose a file</label>
+                            <button :disabled="isDisabled" id="btn-upload" @click.prevent.default='uploadFile'>Upload</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </header>
+        <div v-if="newImage" v-on:click="refreshPage()" class="new-img">
+            <h2 >New image or deleted image since last refresh! Click here to refresh!</h2>
+        </div>
+
+
+    <!-- @click="toggleModal(img)" -->
+    <!-- @click="hashChange(img.id)" -->
+    <!-- :img="img" -->
+
+        <div id="container">
+                <div
+                class="img-box" v-for="img in images">
+                <a :href="'#'+img.id">
+                    <div class="img-wrapper">
+                        <img
+                        :src="img.url"
+                        :alt="img.description">
+                        <div @click.prevent="deleteImg(img.id)" class="delete-image">
+                            <p>DELETE IMAGE</p>
+                        </div>
+
+                    </div>
+
+                </a>
+
+                <p>{{img.title}}</p>
+                </div>
+        </div>
+
+        <div id="showmore">
+            <button v-if="images.length > 9 && more" id="btn-show-more" name="button" @click.prevent.default="showMore()">MORE</button>
+        </div>
+
+        <pic-pop-modal
+        :image-id="imageId"
+        v-if="imageId"
+        @show-by-tag-name="showByTagName"
+        @close-it="close"
+        ></pic-pop-modal>
+    </div>
+    <!-- @show-more="showMore()" -->
+
+    <!-- ////////////////////// Vue MODAL \\\\\\\\\\\\\\\\\\\\\\\\ -->
+
+    <!-- HERE is the HTML my Vue modal should have
+    type MUST be text/x-template
+-->
+
+<!-- @click="$emit('change-image-next(img.id)')"
+ @click="$emit('change-image-previous(img.id)')" -->
+ <!-- @change-image-next = "changeImageNext(img)"
+ @change-image-previous = "changeImagePrevious(img)" -->
+
+
+
+    <script id="modal-template" type="text/x-template">
+
+            <div
+            @click.self='$emit("close-it")'
+            class ="popup-container">
+                <div class="popup-box">
+                    <span @click='$emit("close-it")' class="close">X</span>
+                    <div class="box-up">
+                        <div class="box-left">
+                            <h2>{{img.title}}</h2>
+                            <div class="popup-img-box">
+                                <img class="popup-img" :src="img.url" :alt="img.title">
+
+                                <a :href="'#'+img.next_id">
+                                <p  v-if="img.next_id" class="arrow arrow-left">&#8592;</p></a>
+                                <a :href="'#'+img.previous_id"><p v-if ="img.previous_id" class="arrow arrow-right">&#8594;</p></a>
+                            </div>
+
+                            <p>{{img.description}}</p>
+                            <p> Created by {{img.username}} at {{img.created_at}}</p>
+
+                        </div>
+
+                        <div class="popup-form-container">
+                            <form class="comment-form">
+                                <div class="comment-input-row">
+                                    <label for="username">Username</label>
+                                    <input v-model="form.username" type="text" name="username" autocomplete="off" required>
+                                </div>
+                                <div class="comment-input-row">
+                                    <label for="comment">Comment</label>
+                                    <input v-model='form.comment' type="text" name="comment" autocomplete="off" required>
+                                </div>
+                            </form>
+                            <button :disabled="isDisabled" id="btn-submit-comment" @click.prevent.default='addComment'>Submit</button>
+                            <h3>Tags:</h3>
+
+                                <span v-on:click="$emit('show-by-tag-name', tag)" v-for="tag in tags" class="tag">{{tag}}</span>
+
+                        </div>
+
+                    </div>
+                    <hr>
+                    <div class="popup-comment-container">
+                        <div
+                        class="comment-box" v-for="comment in img.comments">
+                            <h3>{{comment.comment}}</h3>
+
+
+                            <p><span class="user">{{comment.username}}</span>  on {{comment.created_at}}</p>
+                            <i v-on:click='reply' class="fas fa-reply reply"></i>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+    </script>
+
+
+
+
+    <script src="/js/vue.js"></script>
+    <script src="/js/axios.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>
